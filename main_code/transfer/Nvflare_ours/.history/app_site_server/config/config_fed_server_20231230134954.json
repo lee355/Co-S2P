@@ -1,0 +1,31 @@
+{
+    "format_version": 2,
+  
+    "server": {
+      "heart_beat_timeout": 600
+    },
+    "task_data_filters": [],
+    "task_result_filters": [],
+    "workflows": [
+        {
+          "id": "scatter_and_gather",
+          "path": "ours_server.ScatterAndGather_Ours",
+          "args": {
+              "min_clients" : 16,
+              "num_rounds" : 300,
+              "start_round": 0,
+              "wait_time_after_min_received": 10,
+              "train_task_name": "train",
+              "train_timeout": 0,
+              "drop": true , 
+              "num_classes": 300,
+              "embed_dim": 256,
+              "transformer_depth": 12,
+              "transformer_head": 8,
+              "mlp_dim": 256
+          }
+        }
+    
+    ]
+  }
+  

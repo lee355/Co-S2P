@@ -1,0 +1,271 @@
+# -*- coding: gbk -*-
+
+import os
+""" from torch_geometric.nn import GCNConv """
+
+import torch
+import copy
+from numpy import transpose
+import data_utils
+from timm.optim.adan import Adan
+import Dense_ViT, Dense_dynamic_ViT_v2
+import numpy as np
+import math
+from fed_client import Client
+from model import FedModel
+import time
+#from sklearn.metrics import f1_score, accuracy_score
+
+from nvflare.apis.dxo import DXO, DataKind, MetaKey, from_shareable
+from nvflare.apis.executor import Executor
+from nvflare.apis.fl_constant import ReservedKey, ReturnCode
+from nvflare.apis.fl_context import FLContext
+from nvflare.apis.shareable import Shareable, make_reply
+from nvflare.apis.signal import Signal
+
+def calculate_f1_score(y_true, y_pred, average='weighted'):
+    unique_labels = torch.unique(torch.cat((y_true, y_pred)))
+    num_labels = len(unique_labels)
+
+    tmp_dict={}
+    list_unique_labels = list(unique_labels.clone().detach().cpu().numpy())
+    for i in range(len(list_unique_labels)):
+        tmp_dict[list_unique_labels[i]] = i
+    
+    for i in range(len(y_true)):
+        y_true[i]=tmp_dict[y_true[i].item()]
+        y_pred[i]=tmp_dict[y_pred[i].item()]
+
+    unique_labels = torch.unique(torch.cat((y_true, y_pred)))
+    num_labels = len(unique_labels)
+
+    true_positives = torch.zeros(num_labels).to(y_pred.device)
+    false_positives = torch.zeros(num_labels).to(y_pred.device)
+    false_negatives = torch.zeros(num_labels).to(y_pred.device)
+
+    for label in unique_labels:
+        true_positives[label] = torch.sum((y_true == label) & (y_pred == label))
+        false_positives[label] = torch.sum((y_true != label) & (y_pred == label))
+        false_negatives[label] = torch.sum((y_true == label) & (y_pred != label))
+
+    precision = true_positives / (true_positives + false_positives)
+    recall = true_positives / (true_positives + false_negatives)
+
+    f1_scores = 2 * (precision * recall) / (precision + recall)
+    f1_scores[f1_scores.isnan()] = 0  # Handle cases where precision + recall is 0
+
+    if average == 'weighted':
+        weights = torch.bincount(y_true)
+        f1_score = torch.sum(weights * f1_scores) / torch.sum(weights)
+    elif average == 'macro':
+        f1_score = torch.mean(f1_scores)
+    else:
+        raise ValueError("Invalid average parameter. Use 'weighted' or 'macro'.")
+
+    return f1_score.item()
+
+def calculate_accuracy(y_true, y_pred):
+    correct_predictions = torch.sum(y_true == y_pred).item()
+    total_samples = len(y_true)
+    accuracy = correct_predictions / total_samples
+    return accuracy
+
+
+class Ours_c(Executor):
+    #system_info={}
+    def __init__(
+        self,
+        lr=0.05,
+        epochs=10,
+        task_get_model_rate ='get_local_model_rate',
+        train_task_name="train",
+        weight_decay=0.02,
+        no_prox=False,
+        drop = False, 
+        num_classes = 1000,
+        embed_dim = 64,
+        transformer_depth = 12,
+        transformer_head =8,
+        mlp_dim = 256,
+        mask_round_ratio = 0.5,
+        lambda1 = 1.0, 
+        temperature = 3,
+        self_distillation = True
+    ):
+
+        super().__init__()
+        self._current_round = None
+        self.model_rate=data_utils.get_local_model_rate()
+        self._epochs = epochs
+        self._train_task_name = train_task_name
+        self.task_get_model_rate = task_get_model_rate
+        self.device = torch.device("cuda:8" if torch.cuda.is_available() else "cpu")
+        #self.device = torch.device("cpu")
+        root_path='/home/xugw/fed_data/imagenet300/client_16non-iid_1.5/client_0'
+        self.train_loader, self.test_loader, img_size = data_utils.get_ImageNetdataloaders(root_path+'/train',root_path+'/test')
+        self.mask_round_ratio = mask_round_ratio
+        self.client = Client(drop, img_size, num_classes, embed_dim, mlp_dim, transformer_depth, transformer_head,
+                             lambda1, temperature,
+                             weight_decay, no_prox, lr,
+                             self.train_loader, self.test_loader, self_distillation, ratio=self.model_rate, mask_round_ratio=mask_round_ratio, device=self.device)
+        #self.model,self.optimizer = get_model(drop=drop,img_size=img_size,num_classes=num_classes,embed_dim=embed_dim,transformer_depth=transformer_depth,transformer_head=transformer_head,mlp_dim=mlp_dim,device=self.device,lr=lr,weight_decay=weight_decay,no_prox=no_prox,model_rate=self.model_rate)
+
+        self.loss_result = []
+        self.top_1_result = []
+        self.top_5_result = []
+        self.f1_score_result = []
+
+        self.loss = torch.nn.CrossEntropyLoss()
+
+
+    def execute(self, task_name: str, shareable: Shareable, fl_ctx: FLContext, abort_signal: Signal) -> Shareable:
+        try:
+            if task_name == self._train_task_name:
+                # Get model weights
+                try:
+                    dxo = from_shareable(shareable)
+                except:
+                    self.log_error(fl_ctx, "Unable to extract dxo from shareable.")
+                    return make_reply(ReturnCode.BAD_TASK_DATA)
+
+                self.since = time.time()
+
+                # Ensure data kind is weights.
+                if not dxo.data_kind == DataKind.WEIGHTS:
+                    self.log_error(fl_ctx, f"data_kind expected WEIGHTS but got {dxo.data_kind} instead.")
+                    return make_reply(ReturnCode.BAD_TASK_DATA)
+
+                # Convert weights to tensor. Run training
+                torch_weights = {k: torch.as_tensor(v,device=self.device) for k, v in dxo.data['weight'].items()}
+                self.tmp = dxo
+                self._current_round = dxo.data['current_round']
+                self._local_test_then_train(fl_ctx, torch_weights, abort_signal)
+
+                # Check the abort_signal after training.
+                # local_train returns early if abort_signal is triggered.
+                if abort_signal.triggered:
+                    return make_reply(ReturnCode.TASK_ABORTED)
+
+                return self._get_model_weights()
+            
+            elif task_name == self.task_get_model_rate :
+
+                outgoing_dxo = DXO(data_kind='model_rate', data={'model_rate' : self.model_rate})
+                return outgoing_dxo.to_shareable()
+
+            else:
+                return make_reply(ReturnCode.TASK_UNKNOWN)
+        except Exception as e:
+            self.log_exception(fl_ctx, f"Exception in simple trainer: {e}.")
+            return make_reply(ReturnCode.EXECUTION_EXCEPTION)
+
+    def _get_model_weights(self) -> Shareable: 
+        # Get the new state dict and send as weights
+        client_gradients, receive_round = self.client.upload_gradients()
+        print('---------------------------------------------')
+        print(type(client_gradients))
+        gradients = {k: v.cpu().numpy() for k, v in client_gradients.items()}
+        for i in gradients.keys():
+            print(i)
+            print(type(gradients[i]))
+        print(type(receive_round))
+        print(receive_round)
+        print('---------------------------------------------')
+        #gradients = {k: v.cpu().numpy() for k, v in client_gradients.items()}
+        train_time = time.time()-self.since
+        gradients_and_round={"gradients": self.tmp['weight'], "receive_round": receive_round,'train_time' : train_time}
+        #gradients_and_round={"receive_round": 1,'train_time' : train_time}
+        outgoing_dxo = DXO(
+            data_kind=DataKind.WEIGHTS, data=gradients_and_round, meta={MetaKey.NUM_STEPS_CURRENT_ROUND: self._current_round}
+        )
+        return .to_shareable()
+
+    def _local_test_then_train(self, fl_ctx, weights, abort_signal):
+        if self._current_round != 0:
+            self.client.load_local_mask_and_classifier()   
+            weight_model_weights  =copy.deepcopy(weights)
+            last_mask_indices = None
+            for k, v in self.client.mask_indices.items():
+                #weight_model_weights[k] = weight_model_weights[k] * v
+                if "weight" in k:
+                    weight_model_weights[k] = weight_model_weights[k][v.bool()]
+                    
+                    if last_mask_indices is not None:  
+                        if "linear2" in k:
+                            weight_model_weights[k] = weight_model_weights[k][:, last_mask_indices.nonzero().squeeze()]
+                        elif "to_out" in k:
+                            weight_model_weights[k] = weight_model_weights[k][:, last_mask_indices[:int(last_mask_indices.size(0)/3)].nonzero().squeeze()]
+                    last_mask_indices = copy.deepcopy(v)
+                else:
+                    weight_model_weights[k] = weight_model_weights[k][v.bool()]
+                
+            # Set the model weights
+            self.client.local_model.model.load_state_dict(state_dict=weight_model_weights, strict=False)
+            
+            f1_score , val_loss , val_acc , val_acc_5= self.evaluate(self.client.local_model.model,self.test_loader)
+            self.log_info(fl_ctx,"[train round {}] loss: {:.3f}, acc: {:.3f} , f1_score :{:.3f} , acc_5: {:.3f}".format(self._current_round,val_loss,val_acc,f1_score,val_acc_5))
+            
+            self.loss_result.append(val_loss)
+            self.top_1_result.append(val_acc)
+            self.f1_score_result.append(f1_score)
+            self.top_5_result.append(val_acc_5)
+
+            np.save(f'/home/xugw/model_local/client_0/result/loss.npy', self.loss_result)
+            np.save(f'/home/xugw/model_local/client_0/result/top_1.npy', self.top_1_result)
+            np.save(f'/home/xugw/model_local/client_0/result/f1_score.npy', self.f1_score_result)
+            np.save(f'/home/xugw/model_local/client_0/result/top_5.npy', self.top_5_result)    
+        
+            if self._current_round % 5 == 0 :
+                torch.save(self.model.state_dict(),f'/home/xugw/model_local/client_0/model_params_{self._current_round}.pth')
+                
+        if self._current_round <= 30: 
+            self.client.train_local(self._current_round, copy.deepcopy(weights), self._epochs)
+        else:
+            self.client.set_local_round(self._current_round)
+            loss_weight = self.client.local_model.train_weights(data_loader=self.train_loader, 
+                                                        local_sub_epoch=self._epochs)
+        return
+
+    @torch.no_grad()
+    def evaluate(self , model , data_loader):
+        loss_function = torch.nn.CrossEntropyLoss()
+
+        model.eval()
+
+        accu_loss = torch.zeros(1).to(self.device)  
+
+        sample_num = 0
+        correct_1 = 0
+        correct_5 = 0
+        predictions=torch.as_tensor([],device=self.device)
+        targets=torch.as_tensor([],device=self.device)
+        for step, data in enumerate(data_loader):
+            images, labels = data[0].to(self.device),data[1].to(self.device)
+            targets=torch.cat([targets,labels],dim=0)
+            sample_num += images.shape[0]
+
+            pred = model(images.to(self.device))
+            pred_classes = torch.max(pred[-1], dim=1)[1]
+
+            labels = labels.to(torch.int64)
+
+            correct_1 += (pred_classes == labels).sum().item()
+
+            _, maxk = torch.topk(pred[-1], 5, dim=-1)
+            correct_5 += (labels.view(-1,1) == maxk).sum().item()
+
+            predictions=torch.cat([predictions,pred_classes] , dim=0)
+            #accu_num += torch.eq(pred_classes, labels.to(device)).sum()
+
+            loss = loss_function(pred[-1], labels.to(self.device))
+            accu_loss += loss
+        
+        targets = targets.to(torch.int32)
+        predictions = predictions.to(torch.int32)
+
+        f1 = calculate_f1_score(targets, predictions, average='weighted')
+        return f1 , accu_loss.item() / sample_num , 1.0*correct_1/sample_num , 1.0*correct_5 / sample_num
+
+
+
+    

@@ -1,0 +1,33 @@
+{
+    "name": "prunefl_lottery",
+    "resource_spec": {},
+    "min_clients" : 16,
+    "deploy_map": {
+      "app_site_0": [
+        "site-0"
+      ],
+      "app_site_1": [
+        "site-1"
+      ],
+      "app_site_server": [
+        "server"
+      ],
+      "app_site_jetson":[
+        "site-2",
+        "site-3",
+        "site-4",
+        "site-5",
+        "site-6",
+        "site-7",
+        "site-8",
+        "site-9",
+        "site-10",
+        "site-11",
+        "site-12",
+        "site-13",
+        "site-14",
+        "site-15"
+      ]
+    }
+  }
+  

@@ -1,0 +1,30 @@
+{
+    "format_version": 2,
+  
+    "executors": [
+      {
+        "tasks": ["train","get_local_model_rate"],
+        "executor": {
+          "path": "fedrolex_client.fedrolex_c",
+          "args": {
+            "lr": 0.005,
+            "epochs": 8,
+            "weight_decay": 0.02,
+            "no_prox": false,
+            "drop": true , 
+            "num_classes": 200,
+            "embed_dim": 512,
+            "transformer_depth": 8,
+            "transformer_head": 8,
+            "mlp_dim": 1024
+          }
+        }
+      }
+    ],
+    "task_result_filters": [
+    ],
+    "task_data_filters": [
+    ],
+    "components": [
+    ]
+  }

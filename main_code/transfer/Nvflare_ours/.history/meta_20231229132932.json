@@ -1,0 +1,15 @@
+{
+    "name": "fedrolex",
+    "resource_spec": {},
+    "min_clients" : 8,
+    "deploy_map": {
+      "app_site_server": [
+        "server"
+      ],
+      "app_site_jetson":[
+        "site-0",
+        "site-1"
+      ]
+    }
+  }
+  

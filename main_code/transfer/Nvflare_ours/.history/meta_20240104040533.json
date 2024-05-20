@@ -1,0 +1,15 @@
+{
+    "name": "ours_16",
+    "resource_spec": {},
+    "min_clients" : 2,
+    "deploy_map": {
+      "app_site_server": [
+        "server"
+      ],
+      "app_site_jetson":[
+        "site-5",
+        "site-6"
+      ]
+    }
+  }
+  

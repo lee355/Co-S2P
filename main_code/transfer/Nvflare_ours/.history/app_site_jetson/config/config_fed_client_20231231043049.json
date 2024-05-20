@@ -1,0 +1,33 @@
+{
+    "format_version": 2,
+  
+    "executors": [
+      {
+        "tasks": ["train","get_local_model_rate"],
+        "executor": {
+          "path": "ours_client.Ours_c",
+          "args": {
+            "lr": 0.0005,
+            "epochs": 2,
+            "weight_decay": 0.05,
+            "no_prox": false,
+            "drop": true , 
+            "num_classes": 300,
+            "embed_dim": 768,
+            "transformer_depth": 12,
+            "transformer_head": 12,
+            "mlp_dim": 3072,
+            "lambda1": 1.0, 
+            "temperature": 3,
+            "self_distillation": true
+          }
+        }
+      }
+    ],
+    "task_result_filters": [
+    ],
+    "task_data_filters": [
+    ],
+    "components": [
+    ]
+  }
