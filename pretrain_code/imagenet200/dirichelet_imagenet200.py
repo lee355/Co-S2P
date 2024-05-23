@@ -21,25 +21,22 @@ random.seed(10)
 np.random.seed(10)
 
 def dirichlet_split_iid(train_labels, n_clients):
-    '''
-    数据集均分划分iid
-    '''
+
     n_classes = train_labels.max() + 1
-    # (K, N) 类别标签分布矩阵X，记录每个类别划分到每个client去的比例
+  
     l = [1 / n_clients for _ in range(n_clients)] 
     label_distribution = np.array([l for _ in range(n_classes)]) 
     
-    # (K, ...) 记录K个类别对应的样本索引集合
+
     class_idcs = [np.argwhere(train_labels == y).flatten()
                   for y in range(n_classes)]
     for class_idc in class_idcs:
         random.shuffle(class_idc) 
 
-    # 记录N个client分别对应的样本索引集合
+
     client_idcs = [[] for _ in range(n_clients)]
     for k_idcs, fracs in zip(class_idcs, label_distribution):
-        # np.split按照比例fracs将类别为k的样本索引k_idcs划分为了N个子集
-        # i表示第i个client，idcs表示其对应的样本索引集合idcs
+     
         for i, idcs in enumerate(np.split(k_idcs,
                                           (np.cumsum(fracs)[:-1]*len(k_idcs)).
                                           astype(int))):
@@ -50,21 +47,18 @@ def dirichlet_split_iid(train_labels, n_clients):
     return client_idcs
 
 def dirichlet_split_noniid(train_labels, alpha, n_clients):
-    '''
-    按照参数为alpha的Dirichlet分布将样本索引集合划分为n_clients个子集
-    '''
+   
     n_classes = train_labels.max()+1
-    # (K, N) 类别标签分布矩阵X，记录每个类别划分到每个client去的比例
+
     label_distribution = np.random.dirichlet([alpha]*n_clients, n_classes)
-    # (K, ...) 记录K个类别对应的样本索引集合
+
     class_idcs = [np.argwhere(train_labels == y).flatten()
                   for y in range(n_classes)]
 
-    # 记录N个client分别对应的样本索引集合
+
     client_idcs = [[] for _ in range(n_clients)]
     for k_idcs, fracs in zip(class_idcs, label_distribution):
-        # np.split按照比例fracs将类别为k的样本索引k_idcs划分为了N个子集
-        # i表示第i个client，idcs表示其对应的样本索引集合idcs
+   
         for i, idcs in enumerate(np.split(k_idcs,
                                           (np.cumsum(fracs)[:-1]*len(k_idcs)).
                                           astype(int))):
@@ -80,20 +74,19 @@ def compute_index(index, class_counts):
         total += count
         if index < total:
             return i, (index-(total-count))
-    return -1  # 如果索引超出范围，则返回-1
+    return -1
 
 
-raw_labels = os.listdir("/home/ly/code/src/code and baselines/dataset/imagenet2012/imagenet200/train")
+raw_labels = os.listdir("./dataset/imagenet2012/imagenet200/train")
 #print(raw_labels)
 
 labels_dict = {}
 for i in range(len(raw_labels)):
     labels_dict[i] = raw_labels[i]
 
-# 指定文件夹路径
-folder_path = "/home/ly/code/src/code and baselines/dataset/imagenet2012/imagenet200/train"
 
-# 统计每个文件夹的文件个数
+folder_path = "./dataset/imagenet2012/imagenet200/train"
+
 class_counts = [len(os.listdir(os.path.join(folder_path, folder))) for folder in os.listdir(folder_path)]
 
 file_names = [[file for file in os.listdir(os.path.join(folder_path, subfolder))] for subfolder in os.listdir(folder_path)]
@@ -154,4 +147,4 @@ for i in range(len(client_indexs_cpy)):
 
 client_indexs_cpy = dict(zip(list(range(num_clients)), client_indexs_cpy))
 #print(client_indexs)
-np.save("/home/ly/code/src/code and baselines/dataset/imagenet2012/imagenet200/index_"+str(num_clients)+"_alpha"+str(alpha)+".npy", client_indexs_cpy)
+np.save("./dataset/imagenet2012/imagenet200/index_"+str(num_clients)+"_alpha"+str(alpha)+".npy", client_indexs_cpy)
