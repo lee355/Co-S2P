@@ -14,7 +14,7 @@
     "overseer_agent": {
       "path": "nvflare.ha.dummy_overseer_agent.DummyOverseerAgent",
       "args": {
-        "sp_end_point": "10.102.32.203:8002:8003"
+        "sp_end_point": "ip_address:8002:8003"
       }
     }
   }
