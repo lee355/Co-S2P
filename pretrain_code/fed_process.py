@@ -11,9 +11,9 @@ client_num = 16
 random.seed(10)
 
 def split_list_by_ratio(input_list, test_ratio):
-    random.shuffle(input_list)  # 随机打乱列表中的元素顺序
-    split_index = int(len(input_list) * test_ratio)  # 根据比例计算划分的索引位置
-    test_list, train_list = input_list[:split_index], input_list[split_index:]  # 划分成两个列表
+    random.shuffle(input_list)  # 
+    split_index = int(len(input_list) * test_ratio)  # 
+    test_list, train_list = input_list[:split_index], input_list[split_index:]  # 
     return train_list, test_list
 
 meta_data = np.load("/home/***/code/src/code and baselines/dataset/imagenet2012/new_index_"+str(client_num)+"_alpha"+str(alpha)+".npy", 
