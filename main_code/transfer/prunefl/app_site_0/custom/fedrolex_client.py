@@ -35,14 +35,14 @@ from nvflare.apis.shareable import Shareable, make_reply
 from nvflare.apis.signal import Signal
 
 def mixup_data(x, y, alpha=1.0):
-    #随机生成一个 beta 分布的参数 lam，用于生成随机的线性组合，以实现 mixup 数据扩充。
+    #
     lam = np.random.beta(alpha, alpha)
-    #生成一个随机的序列，用于将输入数据进行 shuffle。
+    #
     batch_size = x.size()[0]
     index = torch.randperm(batch_size)
-    #得到混合后的新图片
+    #
     mixed_x = lam * x + (1 - lam) * x[index, :]
-    #得到混图对应的两类标签
+    #
     y_a, y_b = y, y[index]
     return mixed_x, y_a, y_b, lam
 
@@ -92,7 +92,7 @@ class fedrolex_c(Executor):
         self._train_task_name = train_task_name
         self.task_get_model_rate = task_get_model_rate
         self.device = torch.device("cuda:8" if torch.cuda.is_available() else "cpu")
-        root_path='/home/xugw/fed_data/imagenet300/client_16non-iid_1.5/client_0'
+        root_path='/home/***/fed_data/imagenet300/client_16non-iid_1.5/client_0'
         self.train_loader,self.test_loader,img_size = data_utils.get_ImageNetdataloaders(root_path+'/train',root_path+'/test')
         self.model,self.optimizer = get_model(drop=drop,img_size=img_size,num_classes=num_classes,embed_dim=embed_dim,transformer_depth=transformer_depth,transformer_head=transformer_head,mlp_dim=mlp_dim,device=self.device,lr=lr,weight_decay=weight_decay,no_prox=no_prox,model_rate=self.model_rate)
 
@@ -209,13 +209,13 @@ class fedrolex_c(Executor):
         self.f1_score_result.append(f1_score)
         self.top_5_result.append(val_acc_5)
         
-        np.save(f'/home/xugw/model_local/client_0/result/loss.npy', self.loss_result)
-        np.save(f'/home/xugw/model_local/client_0/result/top_1.npy', self.top_1_result)
-        np.save(f'/home/xugw/model_local/client_0/result/f1_score.npy', self.f1_score_result)
-        np.save(f'/home/xugw/model_local/client_0/result/top_5.npy', self.top_5_result)    
+        np.save(f'/home/***/model_local/client_0/result/loss.npy', self.loss_result)
+        np.save(f'/home/***/model_local/client_0/result/top_1.npy', self.top_1_result)
+        np.save(f'/home/***/model_local/client_0/result/f1_score.npy', self.f1_score_result)
+        np.save(f'/home/***/model_local/client_0/result/top_5.npy', self.top_5_result)    
         
         if self._current_round % 5 == 0 :
-            torch.save(self.model.state_dict(),f'/home/xugw/model_local/client_0/model/model_params_{self._current_round}.pth')
+            torch.save(self.model.state_dict(),f'/home/***/model_local/client_0/model/model_params_{self._current_round}.pth')
 
     @torch.no_grad()
     def evaluate(self , model , data_loader):
@@ -223,7 +223,7 @@ class fedrolex_c(Executor):
 
         model.eval()
 
-        accu_loss = torch.zeros(1).to(self.device)  # 绱鎹熷け
+        accu_loss = torch.zeros(1).to(self.device)  
 
         sample_num = 0
         correct_1 = 0

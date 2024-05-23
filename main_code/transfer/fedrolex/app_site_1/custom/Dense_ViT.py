@@ -76,7 +76,7 @@ class FeedForward(nn.Module):
         x = self.linear2(x)
         return x
 
-# 多头注意力层，多个自注意力连起来。使用qkv计算
+
 """class Attention(nn.Module):
     def __init__(self, dim, drop, heads=8):
         super().__init__()
@@ -117,7 +117,7 @@ class exist_classifier(nn.Module):
         self.existnorm = nn.LayerNorm(dim)
         #self.drop = nn.Dropout(0.5)
         #self.gelu = nn.GELU()
-        self.exist_linear = nn.Linear(dim, num_classes)  #TODO修改
+        self.exist_linear = nn.Linear(dim, num_classes)  
     def forward(self, x, ths=None):
         x = self.existnorm(x)
         #x = self.drop(x)

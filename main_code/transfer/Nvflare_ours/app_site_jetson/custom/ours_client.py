@@ -222,7 +222,7 @@ class Ours_c(Executor):
                                                         local_sub_epoch=self._epochs, training_round=self._current_round)
             
         if self._current_round % 5 == 0 :
-                torch.save(self.client.local_weight_model.model.state_dict(),f'/home/liyan/model_local/client_{self.gpu_idx}/model/model_params_{self._current_round}.pth')
+                torch.save(self.client.local_weight_model.model.state_dict(),f'/home/***/model_local/client_{self.gpu_idx}/model/model_params_{self._current_round}.pth')
 
     @torch.no_grad()
     def evaluate(self , model , data_loader):

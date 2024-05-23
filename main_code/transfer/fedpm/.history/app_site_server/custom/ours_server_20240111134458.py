@@ -139,10 +139,10 @@ class ScatterAndGather_Ours(Controller):
         self.client_modelrate = {}
         self.transformer_depth = transformer_depth
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        self.test_loader,img_size = data_utils.get_serverdataloader('/home/xugw/fed_data/imagenet300/client_16non-iid_1.5/val')
+        self.test_loader,img_size = data_utils.get_serverdataloader('/home/***/fed_data/imagenet300/client_16non-iid_1.5/val')
         self.server = Server(self.test_loader, drop, num_classes , embed_dim , transformer_depth , transformer_head, mlp_dim ,img_size, lambda1, temperature, model_rate=1, device=self.device)
         #self.server.global_model.model.load_state_dict(copy.deepcopy(model_dict), strict=True)
-        model_dict = torch.load("/home/xugw/pretrained_model/new_pretrained_model_qkv.pth")
+        model_dict = torch.load("/home/***/pretrained_model/new_pretrained_model_qkv.pth")
         #self.server.global_model.model.load_state_dict(model_dict,strict=False)
         self.server.global_model.set_weights(model_dict)
         self.param_idx = None
@@ -351,7 +351,7 @@ class ScatterAndGather_Ours(Controller):
                 if(self._current_round % 5 == 0):
                     torch.save(self.server.global_model.model.state_dict(), f'/home/ly/model/model_params_{self._current_round}.pth')
                 self._current_round += 1
-            #torch.save(self.server.global_model.model.state_dict(), f'/home/xugw/model/model_params_{self._current_round}.pth')
+            #torch.save(self.server.global_model.model.state_dict(), f'/home/***/model/model_params_{self._current_round}.pth')
             self._phase = AppConstants.PHASE_FINISHED
             self.log_info(fl_ctx, "Finished ScatterAndGather Training.")
         except Exception as e:

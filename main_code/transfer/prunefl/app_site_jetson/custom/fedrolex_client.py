@@ -272,7 +272,7 @@ class fedrolex_c(Executor):
 
         model.eval()
 
-        accu_loss = torch.zeros(1).to(self.device)  # 绱鎹熷け
+        accu_loss = torch.zeros(1).to(self.device)  #
 
         sample_num = 0
         correct_1 = 0

@@ -150,7 +150,7 @@ class ScatterAndGather_Ours(Controller):
         self.client_received_round={}
         self.client_time = {}
         self.device = torch.device("cuda:7" if torch.cuda.is_available() else "cpu")
-        self.test_loader,img_size = data_utils.get_serverdataloader('/home/xugw/fed_data/imagenet300/client_16non-iid_1.5/val')
+        self.test_loader,img_size = data_utils.get_serverdataloader('/home/***/fed_data/imagenet300/client_16non-iid_1.5/val')
         self.server = Server(self.test_loader, drop, num_classes , embed_dim , transformer_depth , transformer_head, mlp_dim ,img_size, lambda1, temperature, model_rate=1, device=self.device)
         self.param_idx = None
         self.loss_result = []
@@ -282,7 +282,7 @@ class ScatterAndGather_Ours(Controller):
                 if(self._current_round % 5 == 0):
                     torch.save(self.server.global_model.model.state_dict(), f'/home/ly/model/model_params_{self._current_round}.pth')
                 self._current_round += 1
-            #torch.save(self.server.global_model.model.state_dict(), f'/home/xugw/model/model_params_{self._current_round}.pth')
+            #torch.save(self.server.global_model.model.state_dict(), f'/home/***/model/model_params_{self._current_round}.pth')
             self._phase = AppConstants.PHASE_FINISHED
             self.log_info(fl_ctx, "Finished ScatterAndGather Training.")
         except Exception as e:

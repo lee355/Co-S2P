@@ -41,7 +41,7 @@ class PatchEmbed(nn.Module):
         x = self.norm(x)
         return x
     
-# 残差模块，放在每个前馈网络和注意力之后
+#
 class Residual(nn.Module):
     def __init__(self, fn):
         super().__init__()
@@ -50,7 +50,7 @@ class Residual(nn.Module):
     def forward(self, x, **kwargs):
         return self.fn(x, **kwargs) + x
 
-# layernorm归一化,放在多头注意力层和激活函数层。用绝对位置编码的BERT，layernorm用来自身通道归一化
+# 
 class PreNorm(nn.Module):
     def __init__(self, dim, fn):
         super().__init__()
@@ -60,7 +60,7 @@ class PreNorm(nn.Module):
     def forward(self, x, **kwargs):
         return self.fn(self.norm(x), **kwargs)
 
-# 放置多头注意力后，因为在于多头注意力使用的矩阵乘法为线性变换，后面跟上由全连接网络构成的FeedForward增加非线性结构
+# 
 class FeedForward(nn.Module):
     def __init__(self, dim, hidden_dim, drop):
         super().__init__()
@@ -76,7 +76,7 @@ class FeedForward(nn.Module):
         x = self.linear2(x)
         return x
 
-# 多头注意力层，多个自注意力连起来。使用qkv计算
+# 
 """class Attention(nn.Module):
     def __init__(self, dim, drop, heads=8):
         super().__init__()
@@ -117,7 +117,7 @@ class exist_classifier(nn.Module):
         self.existnorm = nn.LayerNorm(dim)
         #self.drop = nn.Dropout(0.5)
         #self.gelu = nn.GELU()
-        self.exist_linear = nn.Linear(dim, num_classes)  #TODO修改
+        self.exist_linear = nn.Linear(dim, num_classes) 
     def forward(self, x, ths=None):
         x = self.existnorm(x)
         #x = self.drop(x)
@@ -170,7 +170,7 @@ class Attention(nn.Module):
 
         return x
 
-# 将图像切割成一个个图像块,组成序列化的数据输入Transformer执行图像分类任务。
+# 
 class ViT(nn.Module):
     def __init__(self, *, drop, model_rate, image_size, patch_size, num_classes, dim, depth, heads, mlp_dim, channels=3):
         super().__init__()

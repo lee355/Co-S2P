@@ -43,7 +43,7 @@ class MaskedLinear(nn.Linear):
                 init.kaiming_normal_(self.bias.unsqueeze(0))
                 self.bias.requires_grad = False
                 #self.bias_mask = nn.Parameter(torch.randn_like(self.bias, requires_grad=True))
-        elif training_mode == "both":   #TODO这里如果以后需要使用还需进行修改
+        elif training_mode == "both":   
             self.c = np.e * np.sqrt(1 / in_features)
             arr_weights = np.random.choice([-self.c, self.c], size=(out_features, in_features))
             self.weight = nn.Parameter(torch.tensor(arr_weights, requires_grad=True, dtype=torch.float))
@@ -72,7 +72,7 @@ class MaskedLinear(nn.Linear):
                 g_m = bias_g_m.reshape((-1,1))
             else:
                 nd_w_mask = torch.sigmoid(self.weight_mask)
-                g_m = torch.where(nd_w_mask > ths, 1, 0).reshape((-1,1))   #中位�?
+                g_m = torch.where(nd_w_mask > ths, 1, 0).reshape((-1,1))  
             # Compute segment-wise product with mask
             effective_weight = g_m * self.weight
             effective_weight = effective_weight.to(x.device)
@@ -133,7 +133,7 @@ class MaskedQKV(nn.Linear):
                 g_m = bias_g_m.reshape((-1,1))
             else:
                 nd_w_mask = torch.sigmoid(self.weight_mask)
-                g_m = torch.where(nd_w_mask > ths, 1, 0).reshape((-1,1))   #中位�?
+                g_m = torch.where(nd_w_mask > ths, 1, 0).reshape((-1,1)) 
             # Compute segment-wise product with mask
             effective_weight = g_m * self.weight
             effective_weight = effective_weight.to(x.device)
@@ -158,7 +158,7 @@ class MaskedQKV(nn.Linear):
         return 'Mask Layer: \n FC Weights: {}, {}, MASK: {}'.format(self.weight.sum(), torch.abs(self.weight).sum(),
                                                                     self.mask.sum() / prod)
 
-# 残差模块，放在每个前馈网络和注意力之�?
+
 class Residual(nn.Module):
     def __init__(self, fn):
         super().__init__()
@@ -167,7 +167,7 @@ class Residual(nn.Module):
     def forward(self, x, **kwargs):
         return self.fn(x, **kwargs) + x
 
-# layernorm归一�?,放在多头注意力层和激活函数层。用绝对位置编码的BERT，layernorm用来自身通道归一�?
+
 class PreNorm(nn.Module):
     def __init__(self, dim, fn):
         super().__init__()
@@ -179,7 +179,7 @@ class PreNorm(nn.Module):
     def forward(self, x, **kwargs):
         return self.fn(self.norm(x), **kwargs)
 
-# 放置多头注意力后，因为在于多头注意力使用的矩阵乘法为线性变换，后面跟上由全连接网络构成的FeedForward增加非线性结�?
+
 class FeedForward(nn.Module):
     def __init__(self, dim, hidden_dim, training_mode, drop):
         super().__init__()
@@ -204,7 +204,7 @@ class FeedForward(nn.Module):
         return x
         #return self.net(x, ths)dddd
 
-# 多头注意力层，多个自注意力连起来。使用qkv计算
+
 class Attention(nn.Module):
     def __init__(self, dim, training_mode, drop, heads=8):
         super().__init__()
@@ -215,8 +215,8 @@ class Attention(nn.Module):
         self.linear_k = nn.Linear(dim, dim, bias=False)
         self.linear_v = nn.Linear(dim, dim, bias=False)'''
 
-        self.to_qkv = MaskedQKV(dim, dim * 3, heads=self.heads, bias=False)  #TODO修改
-        self.to_out = MaskedLinear(dim, dim, training_mode=training_mode)   #TODO修改
+        self.to_qkv = MaskedQKV(dim, dim * 3, heads=self.heads, bias=False) 
+        self.to_out = MaskedLinear(dim, dim, training_mode=training_mode)   
         self.dropout = nn.Dropout(p=0.2) if drop == True else nn.Identity()
 
     def forward(self, x, ths=None, transformer_mask=None):
@@ -271,7 +271,7 @@ class exist_classifier(nn.Module):
         self.existnorm = nn.LayerNorm(dim)
         #self.drop = nn.Dropout(0.5)
         #self.gelu = nn.GELU()
-        self.exist_linear = nn.Linear(dim, num_classes)  #TODO修改
+        self.exist_linear = nn.Linear(dim, num_classes)
         init.kaiming_normal_(self.exist_linear.weight)
         init.kaiming_normal_(self.exist_linear.bias.unsqueeze(0))
     def forward(self, x, ths=None):
@@ -282,7 +282,7 @@ class exist_classifier(nn.Module):
         return x
 
 
-# 将图像切割成一个个图像�?,组成序列化的数据输入Transformer执行图像分类任务�?
+
 class ViT(nn.Module):
     def __init__(self, *, training_mode, drop, image_size, patch_size, num_classes, dim, depth, full_depth, heads, mlp_dim, self_distillation=True, channels=3):
         super().__init__()
@@ -351,7 +351,7 @@ class ViT(nn.Module):
         y = self.to_cls_token(y[:, 0])
         return y
 
-# 将图像切割成一个个图像�?,组成序列化的数据输入Transformer执行图像分类任务�?
+
 class ViT_dist(nn.Module):
     def __init__(self, *, training_mode, drop, image_size, patch_size, num_classes, dim, depth, full_depth, heads, mlp_dim, self_distillation=True, channels=3):
         super().__init__()

@@ -148,7 +148,7 @@ class ScatterAndGather_fedrolex(Controller):
         self.client_modelrate={}
         self.client_received_round={}
         self.device = torch.device("cuda:7" if torch.cuda.is_available() else "cpu")
-        self.test_loader,img_size = data_utils.get_serverdataloader('"/home/liyan/code/src/code and baselines/dataset/imagenet2012/imagenet200/val')
+        self.test_loader,img_size = data_utils.get_serverdataloader('"/home/***/code/src/code and baselines/dataset/imagenet2012/imagenet200/val')
         self.server = Server(self.test_loader, drop, num_classes , embed_dim , transformer_depth , transformer_head, mlp_dim ,img_size, lambda1, temperature, model_rate=1, device=self.device)
         self.param_idx = None
 
@@ -253,9 +253,9 @@ class ScatterAndGather_fedrolex(Controller):
                 self.log_info(fl_ctx, f"Round {self._current_round} finished.")
                 self.log_info(fl_ctx,f"time : {time.time()-since}")
                 if(self._current_round%10==0):
-                    torch.save(self.server.global_model.model.state_dict(), f'/home/xugw/model/model_params_{self._current_round}.pth')
+                    torch.save(self.server.global_model.model.state_dict(), f'/home/***/model/model_params_{self._current_round}.pth')
                 self._current_round += 1
-            torch.save(self.server.global_model.model.state_dict(), f'/home/xugw/model/model_params_{self._current_round}.pth')
+            torch.save(self.server.global_model.model.state_dict(), f'/home/***/model/model_params_{self._current_round}.pth')
             self._phase = AppConstants.PHASE_FINISHED
             self.log_info(fl_ctx, "Finished ScatterAndGather Training.")
         except Exception as e:

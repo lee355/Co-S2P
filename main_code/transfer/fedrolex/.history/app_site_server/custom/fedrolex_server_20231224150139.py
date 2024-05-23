@@ -146,9 +146,9 @@ class ScatterAndGather_fedrolex(Controller):
         self.client_w={}
         self.client_modelrate={}
         self.device = torch.device("cuda:9" if torch.cuda.is_available() else "cpu")
-        self.test_loader,img_size = data_utils.get_serverdataloader('/home/xugw/fed_data/client_16non-iid_1.5/val')
+        self.test_loader,img_size = data_utils.get_serverdataloader('/home/***/fed_data/client_16non-iid_1.5/val')
         self.server = Server(self.test_loader ,drop, num_classes , embed_dim , transformer_depth , transformer_head, mlp_dim ,img_size, model_rate=1, device=self.device)
-        model_dict = torch.load("/home/xugw/pretraied_model.pth")
+        model_dict = torch.load("/home/***/pretraied_model.pth")
         #self.server.global_model.model.load_state_dict(model_dict,strict=False)
         self.server.global_model.set_weights(model_dict)
         self.param_idx = None
@@ -254,9 +254,9 @@ class ScatterAndGather_fedrolex(Controller):
                 self.log_info(fl_ctx, f"Round {self._current_round} finished.")
                 self.log_info(fl_ctx,f"time : {time.time()-since}")
                 if(self._current_round%10==0):
-                    torch.save(self.server.global_model.model.state_dict(), f'/home/xugw/model/model_params_{self._current_round}.pth')
+                    torch.save(self.server.global_model.model.state_dict(), f'/home/***/model/model_params_{self._current_round}.pth')
                 self._current_round += 1
-            torch.save(self.server.global_model.model.state_dict(), f'/home/xugw/model/model_params_{self._current_round}.pth')
+            torch.save(self.server.global_model.model.state_dict(), f'/home/***/model/model_params_{self._current_round}.pth')
             self._phase = AppConstants.PHASE_FINISHED
             self.log_info(fl_ctx, "Finished ScatterAndGather Training.")
         except Exception as e:

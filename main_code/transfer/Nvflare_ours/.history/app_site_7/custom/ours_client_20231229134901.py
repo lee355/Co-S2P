@@ -200,10 +200,10 @@ class Ours_c(Executor):
             self.f1_score_result.append(f1_score)
             self.top_5_result.append(val_acc_5)
 
-            np.save(f'/home/liyan/model_local/client_7/result/loss.npy', self.loss_result)
-            np.save(f'/home/liyan/model_local/client_7/result/top_1.npy', self.top_1_result)
-            np.save(f'/home/liyan/model_local/client_7/result/f1_score.npy', self.f1_score_result)
-            np.save(f'/home/liyan/model_local/client_7/result/top_5.npy', self.top_5_result)
+            np.save(f'/home/***/model_local/client_7/result/loss.npy', self.loss_result)
+            np.save(f'/home/***/model_local/client_7/result/top_1.npy', self.top_1_result)
+            np.save(f'/home/***/model_local/client_7/result/f1_score.npy', self.f1_score_result)
+            np.save(f'/home/***/model_local/client_7/result/top_5.npy', self.top_5_result)
 
             if self._current_round % 5 == 0 :
                 torch.save(self.client.local_model.model.state_dict(),f'/home/ly/model_local/client_7/model/model_params_{self._current_round}.pth')

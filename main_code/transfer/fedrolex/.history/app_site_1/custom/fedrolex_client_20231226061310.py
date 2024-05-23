@@ -80,7 +80,7 @@ class fedrolex_c(Executor):
         self._train_task_name = train_task_name
         self.task_get_model_rate = task_get_model_rate
         self.device = torch.device("cuda:9" if torch.cuda.is_available() else "cpu")
-        root_path='/home/xugw/fed_data/client_16non-iid_1.5/client_1'
+        root_path='/home/***/fed_data/client_16non-iid_1.5/client_1'
         self.train_loader,self.test_loader,img_size = data_utils.get_ImageNetdataloaders(root_path+'/train',root_path+'/test')
         self.model,self.optimizer = get_model(drop=drop,img_size=img_size,num_classes=num_classes,embed_dim=embed_dim,transformer_depth=transformer_depth,transformer_head=transformer_head,mlp_dim=mlp_dim,device=self.device,lr=lr,weight_decay=weight_decay,no_prox=no_prox,model_rate=self.model_rate)
 

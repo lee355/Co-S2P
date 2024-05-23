@@ -29,7 +29,7 @@ class Client:
         #self.client_id = id   #�?0开�?
         '''current_folder = Path(__file__).parent.resolve()
         parent_folder = Path(__file__).parent.parent.resolve()'''
-        #self.client_mask_path = "/home/liyan/fed_checkpoint/tmp1/client_mask/"+str(self.client_id)+"_local_mask_and_classifier.pth"
+        #self.client_mask_path = "/home/***/fed_checkpoint/tmp1/client_mask/"+str(self.client_id)+"_local_mask_and_classifier.pth"
         self.local_mask_and_classifier = None
         self.drop = drop
         self.img_size = img_size
@@ -140,7 +140,7 @@ class Client:
                     mask_model_weights[k[:-5]] = mask_model_weights[k[:-5]][updates_s.bool()]
                     mask_model_weights[k[:-11]+"bias"] = mask_model_weights[k[:-11]+"bias"][updates_s.bool()]
 
-                    #对于输入进行改变了的也得进行变换
+                    #对于输入进行改坘了的也得进行坘杢
                     if last_mask_indices is not None: 
                         if "linear2" in k:
                             mask_model_weights[k[:-5]] = mask_model_weights[k[:-5]][:, last_mask_indices.nonzero().squeeze()]
@@ -161,14 +161,14 @@ class Client:
                                                         local_sub_epoch=local_ep-mask_rounds)
         else:
             print(type(self.local_model.model))
-            self.load_local_mask_and_classifier()  #在这里只是设置分类头
+            self.load_local_mask_and_classifier()  #在这里坪是设置分类头
             weight_model_weights = copy.deepcopy(self.initial_weights)
             last_mask_indices = None
             for k, v in self.mask_indices.items():
                 #weight_model_weights[k] = weight_model_weights[k] * v
                 if "weight" in k:
                     weight_model_weights[k] = weight_model_weights[k][v.bool()]
-                    #对于输入进行改变了的也得进行变换
+                    #对于输入进行改坘了的也得进行坘杢
                     if last_mask_indices is not None:  
                         if "linear2" in k:
                             weight_model_weights[k] = weight_model_weights[k][:, last_mask_indices.nonzero().squeeze()]
@@ -197,7 +197,7 @@ class Client:
         self.local_model.set_weights(self.local_mask_and_classifier)
 
     
-    #返回当前客户端的更新了的部分的梯�?   qkv版本更新
+    #返回当剝客户端的更新了的部分的梯�?   qkv版本更新
     def upload_gradients(self):
         param_dict = dict()
         #print(f'Current lcoal Model: {type(self.local_model.model)}.')
@@ -216,7 +216,7 @@ class Client:
                         '''print(extended_tensor.size())
                         print(self.initial_weights[k].size())'''
                         extended_tensor[self.mask_indices[k].nonzero().squeeze()] = v
-                        if last_mask_indices is not None:   #对于输入进行改变了的也得进行变换
+                        if last_mask_indices is not None:   #对于输入进行改坘了的也得进行坘杢
                             if "linear2" in k:
                                 tmp = extended_tensor
                                 extended_tensor = torch.zeros((extended_tensor.size(0), last_mask_indices.size(0)), dtype=v.dtype).to(v.device)
@@ -245,7 +245,7 @@ class Client:
         loss = 0
         criterion = torch.nn.CrossEntropyLoss()
         with torch.no_grad():
-            for i, (test_x, test_y) in enumerate(self.local_test_loader):  #TODO为每一个客户端分配测试数据�?
+            for i, (test_x, test_y) in enumerate(self.local_test_loader):  #TODO为毝一个客户端分酝测试数杮�?
                 temp_l = []
                 for n in range(n_samples):
                     test_x = test_x.to(self.device)

@@ -34,7 +34,7 @@ class CustomImageNet(Dataset):
 
     def __getitem__(self, item):
         img = Image.open(self.images_path[item]).convert('RGB')
-      
+       
         '''if img.mode != 'RGB':
             raise ValueError("image: {} isn't RGB mode.".format(self.images_path[item]))'''
         label = self.images_class[item]
@@ -46,7 +46,7 @@ class CustomImageNet(Dataset):
 
     @staticmethod
     def collate_fn(batch):
-   
+        # 
         # https://github.com/pytorch/pytorch/blob/67b7e751e6b5931a9f45274653f4f653a4e6cdf6/torch/utils/data/_utils/collate.py
         images, labels = tuple(zip(*batch))
 
@@ -60,7 +60,7 @@ def get_ImageNetdataloaders(train_data_path, test_data_path):
     train_image_data = []
     train_label_data = []
     lablename_list = os.listdir(train_data_path)
-    cla_dict = np.load("./dataset/imagenet2012/imagenet200/label_dict.npy",allow_pickle=True).item()
+    cla_dict = np.load("/home/***/code/src/code and baselines/dataset/imagenet2012/imagenet200/label_dict.npy",allow_pickle=True).item()
     #print(lablename_list[0])
     for i in range(len(lablename_list)):
         file_names = [os.path.join(os.path.join(train_data_path, lablename_list[i]),file) 
@@ -88,7 +88,7 @@ def get_serverdataloader(server_test_path):
     test_image_data = []
     test_label_data = []
     lablename_list = os.listdir(server_test_path)
-    cla_dict = np.load("./dataset/imagenet2012/imagenet200/label_dict.npy").item()
+    cla_dict = np.load("/home/***/code/src/code and baselines/dataset/imagenet2012/imagenet200/label_dict.npy").item()
     #print(lablename_list[0])
     for i in range(len(lablename_list)):
         file_names = [os.path.join(os.path.join(server_test_path, lablename_list[i]),file) 
@@ -99,15 +99,15 @@ def get_serverdataloader(server_test_path):
     server_test_loader = DataLoader(CustomImageNet(test_image_data, test_label_data, transform), batch_size=bs, shuffle=True)
     return server_test_loader, img_size
 
-
-train_data_path = "./dataset/imagenet2012/imagenet200/fed_data/client_12non-iid_alpha1.5/client_0/train"
-test_data_path = "./dataset/imagenet2012/imagenet200/fed_data/client_12non-iid_alpha1.5/client_0/test"  
+#这里的client_0需要按照客户端进行修改
+train_data_path = "/home/***/code/src/code and baselines/dataset/imagenet2012/imagenet200/fed_data/client_12non-iid_alpha1.5/client_0/train"
+test_data_path = "/home/***/code/src/code and baselines/dataset/imagenet2012/imagenet200/fed_data/client_12non-iid_alpha1.5/client_0/test"  
 client_train_loaders, client_test_loader, img_size = get_ImageNetdataloaders(train_data_path, test_data_path)
 print("Load Client DataLoader Done!!!")
 for batch_idx, (image, label) in enumerate(client_train_loaders):
     print(image.shape)
     print(image)
     
-server_test_path = "./dataset/imagenet2012/imagenet200/val"
+server_test_path = "/home/***/code/src/code and baselines/dataset/imagenet2012/imagenet200/val"
 server_test_loader, img_size = get_ImageNetdataloaders(server_test_path)
 print("Load Server DataLoader Done!!!")

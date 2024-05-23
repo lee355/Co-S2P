@@ -22,19 +22,20 @@ np.random.seed(10)
 def dirichlet_split_iid(train_labels, n_clients):
 
     n_classes = train_labels.max() + 1
-
+ 
     l = [1 / n_clients for _ in range(n_clients)] 
     label_distribution = np.array([l for _ in range(n_classes)]) 
     
-
+  
     class_idcs = [np.argwhere(train_labels == y).flatten()
                   for y in range(n_classes)]
     for class_idc in class_idcs:
         random.shuffle(class_idc) 
 
-
+    
     client_idcs = [[] for _ in range(n_clients)]
     for k_idcs, fracs in zip(class_idcs, label_distribution):
+    
         for i, idcs in enumerate(np.split(k_idcs,
                                           (np.cumsum(fracs)[:-1]*len(k_idcs)).
                                           astype(int))):
@@ -45,18 +46,18 @@ def dirichlet_split_iid(train_labels, n_clients):
     return client_idcs
 
 def dirichlet_split_noniid(train_labels, alpha, n_clients):
-
+   
     n_classes = train_labels.max()+1
-
+  
     label_distribution = np.random.dirichlet([alpha]*n_clients, n_classes)
-
+    
     class_idcs = [np.argwhere(train_labels == y).flatten()
                   for y in range(n_classes)]
 
-
+    
     client_idcs = [[] for _ in range(n_clients)]
     for k_idcs, fracs in zip(class_idcs, label_distribution):
-
+       
         for i, idcs in enumerate(np.split(k_idcs,
                                           (np.cumsum(fracs)[:-1]*len(k_idcs)).
                                           astype(int))):
@@ -72,10 +73,10 @@ def compute_index(index, class_counts):
         total += count
         if index < total:
             return i, (index-(total-count))
-    return -1 
+    return -1  
 
 
-raw_labels = os.listdir("./EXP/data/ImageNet/train")
+raw_labels = os.listdir("/home/***/EXP/data/ImageNet/train")
 #print(raw_labels)
 
 labels_dict = {}
@@ -83,9 +84,9 @@ for i in range(len(raw_labels)):
     labels_dict[i] = raw_labels[i]
 
 
-folder_path = "./EXP/data/ImageNet/train"
+folder_path = "/home/***/EXP/data/ImageNet/train"
 
-
+# 
 class_counts = [len(os.listdir(os.path.join(folder_path, folder))) for folder in os.listdir(folder_path)]
 
 file_names = [[file for file in os.listdir(os.path.join(folder_path, subfolder))] for subfolder in os.listdir(folder_path)]
@@ -143,4 +144,4 @@ for i in range(len(client_indexs_cpy)):
 
 client_indexs_cpy = dict(zip(list(range(num_clients)), client_indexs_cpy))
 #print(client_indexs)
-np.save("./dataset/imagenet2012/new_index_"+str(num_clients)+"_alpha"+str(alpha)+".npy", client_indexs_cpy)
+np.save("/home/ly/code/src/code and baselines/dataset/imagenet2012/new_index_"+str(num_clients)+"_alpha"+str(alpha)+".npy", client_indexs_cpy)

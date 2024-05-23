@@ -73,7 +73,7 @@ def get_ImageNetdataloaders(train_data_path, test_data_path):
     if os.path.exists('/home/nvidia'):
         cla_dict = np.load("/home/nvidia/label_dict.npy",allow_pickle=True).item()
     else:
-        cla_dict = np.load("/home/xugw/label_dict.npy",allow_pickle=True).item()
+        cla_dict = np.load("/home/***/label_dict.npy",allow_pickle=True).item()
     #print(lablename_list[0])
     for i in range(len(lablename_list)):
         file_names = [os.path.join(os.path.join(train_data_path, lablename_list[i]),file) 
@@ -104,7 +104,7 @@ def get_serverdataloader(server_test_path):
     if os.path.exists('/home/nvidia'):
         cla_dict = np.load("/home/nvidia/label_dict.npy",allow_pickle=True).item()
     else:
-        cla_dict = np.load("/home/xugw/label_dict.npy",allow_pickle=True).item()
+        cla_dict = np.load("/home/***/label_dict.npy",allow_pickle=True).item()
     #print(lablename_list[0])
     for i in range(len(lablename_list)):
         file_names = [os.path.join(os.path.join(server_test_path, lablename_list[i]),file) 

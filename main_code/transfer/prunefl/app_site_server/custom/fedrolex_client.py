@@ -179,7 +179,7 @@ class fedrolex_c(Executor):
 
         model.eval()
 
-        accu_loss = torch.zeros(1).to(self.device)  # 累计损失
+        accu_loss = torch.zeros(1).to(self.device)  #
 
         sample_num = 0
         predictions=torch.as_tensor([],device=self.device)

@@ -28,10 +28,10 @@ class Server:
                                      lambda1, temperature, model_rate=1, device=device) 
         self.round_global_weights = []
         self.round_global_weights.append(self.global_model.get_weights())
-        self.current_sample_clients = []   #当前轮客户端的列表
-        self.current_training_clients = []  #目前还在训练的客户端列表
-        self.current_trained_clients = []   #目前已经训练完的客户端
-        self.current_aggregate_clients = []  #当前轮要聚合的客户端列表
+        self.current_sample_clients = []   
+        self.current_training_clients = []  
+        self.current_trained_clients = []  
+        self.current_aggregate_clients = []  
         self.current_idle_clients = []
         self.stale_steps = 0
         self.update_number = 0
@@ -46,7 +46,7 @@ class Server:
         """
             Sample clients at each round (now uniformly at random, can be changed).
         """
-        #从上一轮中被聚合的客户端以及上一轮闲散的客户端中选择
+
         n_samples = math.floor(self.frac * self.num_users)
         tmp = self.current_idle_clients
         self.current_sample_clients = list(np.random.choice(tmp,size=min(len(tmp),n_samples), replace=False))
@@ -62,21 +62,21 @@ class Server:
         aggregate_client_num = np.random.randint(low_client_num, total_client_num)
         '''self.current_aggregate_clients = list(np.random.choice(self.current_training_clients, 
                                                                size=aggregate_client_num, replace=False))'''
-        self.current_aggregate_clients = self.current_sample_clients  #TODO
+        self.current_aggregate_clients = self.current_sample_clients
         return self.current_aggregate_clients
     
-    #这一轮没有被聚合的
+
     def set_continue_training_clients(self):
         self.current_training_clients = list(set(self.current_training_clients) - set(self.current_aggregate_clients))
 
     def set_idle_clients(self):
-        self.current_idle_clients += self.current_aggregate_clients   #现在闲置的加上上一轮训练结束的
+        self.current_idle_clients += self.current_aggregate_clients 
     
-    #在每一次聚合之后进行模型权重（没有掩码）的保存
+
     def save_global_weight(self):
         param_dict = {k: v for k, v in self.global_model.get_weights().items()}
         self.round_global_weights.append(param_dict)
-        #torch.save({'weight_model_state_dict': param_dict}, self.server_model_path)   #存储最新的模型参数
+        #torch.save({'weight_model_state_dict': param_dict}, self.server_model_path) 
 
     def find_bitrate(self, probs, num_params):
         local_bitrate = 0
@@ -90,11 +90,7 @@ class Server:
     
     
     def compute_staleness(self, client_idxs, client_gradients, recevie_round, client_model_rate, n_round):
-        '''
-        client_gradients_ls: 待聚合的客户端对应的梯度
-        clinet_round_ls: 客户端收到服务器的全局参数的轮次
-        client_idxs: 当前轮待聚合的客户端的id
-        '''
+
         client_gamma_ls = []
         assert len(client_gradients) == len(recevie_round)
 
@@ -130,7 +126,7 @@ class Server:
         client_staleness_ls = self.compute_staleness(self.current_aggregate_clients, client_gradients, recevie_round, model_rate, n_round)
         for i, client_name in enumerate(client_gradients.keys()):
             for key, value in client_gradients[client_name].items():
-                if "to_qkv.bias" not in key:   #weight模型中设置了to_qkv的bias为false，但是mask中无法进行设置
+                if "to_qkv.bias" not in key:  
                     aggregated_weights[key] += client_staleness_ls[i] * value
         
         self.global_model.set_weights(aggregated_weights)

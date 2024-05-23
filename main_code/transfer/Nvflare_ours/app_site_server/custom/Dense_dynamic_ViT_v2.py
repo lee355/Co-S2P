@@ -63,7 +63,7 @@ class Residual(nn.Module):
         else:
             return self.fn(x, **kwargs) + x
 
-# layernorm归一�?,放在多头注意力层和激活函数层。用绝对位置编码的BERT，layernorm用来自身通道归一�?
+
 class PreNorm(nn.Module):
     def __init__(self, dim, fn):
         super().__init__()
@@ -73,7 +73,7 @@ class PreNorm(nn.Module):
     def forward(self, x, **kwargs):
         return self.fn(self.norm(x), **kwargs)
 
-# 放置多头注意力后，因为在于多头注意力使用的矩阵乘法为线性变换，后面跟上由全连接网络构成的FeedForward增加非线性结�?
+
 class FeedForward(nn.Module):
     def __init__(self, dim, linear1_size, drop, linear2_size):
         super().__init__()
@@ -93,7 +93,7 @@ class FeedForward(nn.Module):
         x = self.linear2(x)
         return x
 
-# 多头注意力层，多个自注意力连起来。使用qkv计算
+
 class Attention(nn.Module):
     def __init__(self, dim, drop, heads, qkv_szie, out_size):
         super().__init__()
@@ -142,7 +142,7 @@ class exist_classifier(nn.Module):
         self.existnorm = nn.LayerNorm(dim)
         #self.drop = nn.Dropout(0.5)
         #self.gelu = nn.GELU()
-        self.exist_linear = nn.Linear(dim, num_classes)  #TODO修改
+        self.exist_linear = nn.Linear(dim, num_classes)  
         init.kaiming_normal_(self.exist_linear.weight)
         init.kaiming_normal_(self.exist_linear.bias.unsqueeze(0))
     def forward(self, x, ths=None):
@@ -153,7 +153,7 @@ class exist_classifier(nn.Module):
         return x
 
 
-# 将图像切割成一个个图像�?,组成序列化的数据输入Transformer执行图像分类任务�?
+
 class ViT(nn.Module):
     def __init__(self, *, drop, image_size, patch_size, num_classes, dim, depth, full_depth, heads, mlp_dim, segment_mask=None, self_distillation=True, channels=3):
         super().__init__()
@@ -212,7 +212,7 @@ class ViT(nn.Module):
                 cnt += 4
             
             self.to_cls_token = nn.Identity()
-            #TODO等待运行检�?
+          
             if self.self_distillation:
                 if len(self.exist_classifiers_depth) == 4:
                     self.exist_classifiers1 = exist_classifier(dim, mlp_dim, num_classes)
@@ -238,7 +238,7 @@ class ViT(nn.Module):
                 ]))
             
             self.to_cls_token = nn.Identity()
-            #TODO等待运行检�?
+ 
             if self.self_distillation:
                 if len(self.exist_classifiers_depth) == 4:
                     self.exist_classifiers1 = exist_classifier(dim, mlp_dim, num_classes)

@@ -121,7 +121,7 @@ def get_local_model_rate():
     return model_rate
 
 def get_data_path():
-    root_path="/home/liyan/code/src/code and baselines/dataset/imagenet2012/imagenet200/fed_data/client_7non-iid_1.5/"
+    root_path="/home/***/code/src/code and baselines/dataset/imagenet2012/imagenet200/fed_data/client_7non-iid_1.5/"
 
     dir=os.listdir(root_path)
     client=None

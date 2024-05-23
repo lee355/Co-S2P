@@ -29,7 +29,7 @@ class Client:
         #self.client_id = id   #从0开始
         '''current_folder = Path(__file__).parent.resolve()
         parent_folder = Path(__file__).parent.parent.resolve()'''
-        #self.client_mask_path = "/home/liyan/fed_checkpoint/tmp1/client_mask/"+str(self.client_id)+"_local_mask_and_classifier.pth"
+        #self.client_mask_path = "/home/***/fed_checkpoint/tmp1/client_mask/"+str(self.client_id)+"_local_mask_and_classifier.pth"
         self.local_mask_and_classifier = None
         self.drop = drop
         self.img_size = img_size

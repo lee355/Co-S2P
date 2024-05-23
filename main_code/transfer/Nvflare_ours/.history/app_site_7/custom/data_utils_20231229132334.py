@@ -123,7 +123,7 @@ def get_local_model_rate():
 def get_data_path():
     root_path='/home/nvidia/fed_data/client_8non-iid_1.5'
     if os.path.exists(root_path) is False:
-        root_path='/home/xugw'
+        root_path='/home/***'
     dir=os.listdir(root_path)
     client=None
     for ddir in dir:

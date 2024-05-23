@@ -71,9 +71,9 @@ def get_ImageNetdataloaders(train_data_path, test_data_path):
     train_label_data = []
     lablename_list = os.listdir(train_data_path)
     if os.path.exists('/home/nvidia'):
-        cla_dict = np.load("/home/liyan/code/src/code and baselines/dataset/imagenet2012/imagenet200/label_dict.npy",allow_pickle=True).item()
+        cla_dict = np.load("/home/***/code/src/code and baselines/dataset/imagenet2012/imagenet200/label_dict.npy",allow_pickle=True).item()
     else:
-        cla_dict = np.load("/home/liyan/code/src/code and baselines/dataset/imagenet2012/imagenet200/label_dict.npy",allow_pickle=True).item()
+        cla_dict = np.load("/home/***/code/src/code and baselines/dataset/imagenet2012/imagenet200/label_dict.npy",allow_pickle=True).item()
     #print(lablename_list[0])
     for i in range(len(lablename_list)):
         file_names = [os.path.join(os.path.join(train_data_path, lablename_list[i]),file) 
@@ -104,7 +104,7 @@ def get_serverdataloader(server_test_path):
     if os.path.exists('/home/nvidia'):
         cla_dict = np.load("/home/nvidia/label_dict.npy",allow_pickle=True).item()
     else:
-        cla_dict = np.load("/home/xugw/label_dict.npy",allow_pickle=True).item()
+        cla_dict = np.load("/home/***/label_dict.npy",allow_pickle=True).item()
     #print(lablename_list[0])
     for i in range(len(lablename_list)):
         file_names = [os.path.join(os.path.join(server_test_path, lablename_list[i]),file) 

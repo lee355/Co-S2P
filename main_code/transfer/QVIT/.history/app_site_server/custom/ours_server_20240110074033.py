@@ -281,7 +281,7 @@ class ScatterAndGather_Ours(Controller):
                 if(self._current_round % 5 == 0):
                     torch.save(self.server.global_model.model.state_dict(), f'/home/ly/model/model_params_{self._current_round}.pth')
                 self._current_round += 1
-            #torch.save(self.server.global_model.model.state_dict(), f'/home/xugw/model/model_params_{self._current_round}.pth')
+            #torch.save(self.server.global_model.model.state_dict(), f'/home/***/model/model_params_{self._current_round}.pth')
             self._phase = AppConstants.PHASE_FINISHED
             self.log_info(fl_ctx, "Finished ScatterAndGather Training.")
         except Exception as e:

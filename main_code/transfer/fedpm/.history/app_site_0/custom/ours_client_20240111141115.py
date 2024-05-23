@@ -115,7 +115,7 @@ class Ours_c(Executor):
         self.task_get_model_rate = task_get_model_rate
         self.device = torch.device("cuda:8" if torch.cuda.is_available() else "cpu")
         #self.device = torch.device("cpu")
-        root_path='/home/xugw/fed_data/imagenet300/client_16non-iid_1.5/client_0'
+        root_path='/home/***/fed_data/imagenet300/client_16non-iid_1.5/client_0'
         self.train_loader, self.test_loader, img_size = data_utils.get_ImageNetdataloaders(root_path+'/train',root_path+'/test')
         self.mask_round_ratio = mask_round_ratio
         self.client = Client(drop, img_size, num_classes, embed_dim, mlp_dim, transformer_depth, transformer_head,
