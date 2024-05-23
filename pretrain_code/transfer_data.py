@@ -4,10 +4,10 @@ import os
 import subprocess
 import pexpect
 
-# ±¾µØÎÄ¼ş¼ĞÂ·¾¶
-local_folder = '/home/ly/code/src/code and baselines/dataset/imagenet2012/fed_data/new_client_16non-iid_1.5'
 
-# Ô¶³Ì·şÎñÆ÷ĞÅÏ¢
+local_folder = './dataset/imagenet2012/fed_data/new_client_16non-iid_1.5'
+
+
 servers = [
     {'hostname': '10.102.32.203', 'username': 'xugw', 'password': 'iic123456', 'remote_folder': '/home/xugw/fed_data/'},
     {'hostname': '10.102.32.203', 'username': 'xugw', 'password': 'iic123456', 'remote_folder': '/home/xugw/fed_data/'},
@@ -27,17 +27,17 @@ servers = [
     {'hostname': '101.76.220.159', 'username': 'nvidia', 'password': 'nvidia', 'remote_folder': '/home/nvidia/fed_data/'}
 ]
 
-# ±éÀúÃ¿¸öÔ¶³Ì·şÎñÆ÷
+# éå†æ¯ä¸ªè¿œç¨‹æœåŠ¡å™¨
 for i in range(len(servers)):
     print("Start transferring client" + str(i))
     servers[i]['remote_folder'] += 'new_client_16non-iid_1.5'
     sub_local_folder = local_folder + "/client_" + str(i)
-    # ½¨Á¢SSHÁ¬½Ó
+    # å»ºç«‹SSHè¿æ¥
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(servers[i]['hostname'], username=servers[i]['username'], password=servers[i]['password'])
 
-    # ´´½¨SFTP¿Í»§¶Ë
+    # åˆ›å»ºSFTPå®¢æˆ·ç«¯
     sftp = ssh.open_sftp()
 
     try:
@@ -45,7 +45,7 @@ for i in range(len(servers)):
     except IOError:
         sftp.mkdir(servers[i]['remote_folder'])
         
-    # µİ¹é´«Êä×ÓÎÄ¼ş¼Ğ
+    # é€’å½’ä¼ è¾“å­æ–‡ä»¶å¤¹
     for root, dirs, files in os.walk(sub_local_folder):
         remote_dir = os.path.join(servers[i]['remote_folder'], os.path.relpath(root, local_folder))
         try:
@@ -55,6 +55,6 @@ for i in range(len(servers)):
         for file in files:
             sftp.put(os.path.join(root, file), os.path.join(remote_dir, file))
 
-    # ¹Ø±ÕSFTP¿Í»§¶ËºÍSSHÁ¬½Ó
+    # å…³é—­SFTPå®¢æˆ·ç«¯å’ŒSSHè¿æ¥
     sftp.close()
     ssh.close()
