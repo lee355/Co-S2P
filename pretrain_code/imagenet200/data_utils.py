@@ -99,7 +99,7 @@ def get_serverdataloader(server_test_path):
     server_test_loader = DataLoader(CustomImageNet(test_image_data, test_label_data, transform), batch_size=bs, shuffle=True)
     return server_test_loader, img_size
 
-#这里的client_0需要按照客户端进行修改
+
 train_data_path = "/home/***/code/src/code and baselines/dataset/imagenet2012/imagenet200/fed_data/client_12non-iid_alpha1.5/client_0/train"
 test_data_path = "/home/***/code/src/code and baselines/dataset/imagenet2012/imagenet200/fed_data/client_12non-iid_alpha1.5/client_0/test"  
 client_train_loaders, client_test_loader, img_size = get_ImageNetdataloaders(train_data_path, test_data_path)
